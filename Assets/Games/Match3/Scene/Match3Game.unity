@@ -252,7 +252,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   xDim: 9
   yDim: 9
-  pieceBG: {fileID: 705582089949805844, guid: 766a250c124d28944b43a6f9232c8f37, type: 3}
+  pieceBg: {fileID: 705582089949805844, guid: 766a250c124d28944b43a6f9232c8f37, type: 3}
   piecePrefabs:
   - type: 0
     prefab: {fileID: 3498377921954241871, guid: f8c9613149fec4c459bf48c5964bf41c, type: 3}
