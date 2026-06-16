@@ -12,6 +12,7 @@ public class Grid : MonoBehaviour
     {
         Empty,
         Normal,
+        Bubble,
         Count
     }
 
@@ -66,6 +67,10 @@ public class Grid : MonoBehaviour
                 GenerateNewPiece(x,y,PieceType.Empty);
             }
         }
+        
+        Destroy(_pieces[4,5].gameObject);
+        GenerateNewPiece(4, 5, PieceType.Bubble);
+        
         StartCoroutine(Fill());
     }
 
