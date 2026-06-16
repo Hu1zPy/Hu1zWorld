@@ -35,6 +35,8 @@ public class Grid : MonoBehaviour
     public float moveTime;
 
     private bool inverse = false;
+    private GamePiece enterPiece;
+    private GamePiece pressPiece;
 
     private Dictionary<PieceType, GameObject> _piecePrefabDict;
     private GamePiece[,] _pieces;
@@ -213,4 +215,45 @@ public class Grid : MonoBehaviour
     {
         return new Vector2(transform.position.x - xDim / 2f + x, transform.position.y + yDim / 2f - y);
     }
+
+    public bool IsAdjacent(GamePiece piece1, GamePiece piece2)
+    {
+        return (piece1.X == piece2.X && (int)Mathf.Abs(piece1.Y - piece2.Y) == 1) ||
+               (piece1.Y == piece2.Y && (int)Mathf.Abs(piece1.X - piece2.X) == 1);
+    }
+
+    public void SwapPieces(GamePiece piece1, GamePiece piece2)
+    {
+        if (piece1.IsMovable() && piece2.IsMovable())
+        {
+            //交互数组元素
+            _pieces[piece1.X, piece1.Y] = piece2;
+            _pieces[piece2.X, piece2.Y] = piece1;
+            //保留坐标
+            int piece1X = piece1.X;
+            int piece1Y = piece1.Y;
+            //移动
+            piece1.MovablePieceRef.Move(piece2.X,piece2.Y,moveTime);
+            piece2.MovablePieceRef.Move(piece1X,piece1Y,moveTime);
+        }
+    }
+
+    public void EnterPiece(GamePiece piece)
+    {
+        enterPiece = piece;
+    }
+
+    public void PressPiece(GamePiece piece)
+    {
+        pressPiece = piece;
+    }
+
+    public void ReleasePiece()
+    {
+        if (IsAdjacent(enterPiece, pressPiece))
+        {
+            SwapPieces(enterPiece,pressPiece);
+        }
+    }
 }
+
