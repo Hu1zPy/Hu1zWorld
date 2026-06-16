@@ -10,6 +10,7 @@ public class Grid : MonoBehaviour
 {
     public enum PieceType
     {
+        Empty,
         Normal,
         Count
     }
@@ -27,6 +28,10 @@ public class Grid : MonoBehaviour
     public GameObject pieceBg;
     [Header("预制体列表")]
     public PiecePrefab[] piecePrefabs;
+    [Header("生成间隔")]
+    public float fillTime;
+    [Header("下降时间")]
+    public float moveTime;
 
     private Dictionary<PieceType, GameObject> _piecePrefabDict;
     private GamePiece[,] _pieces;
@@ -58,26 +63,75 @@ public class Grid : MonoBehaviour
         {
             for (int y = 0; y < yDim; y++)
             {
-                GameObject newPiece = Instantiate(_piecePrefabDict[PieceType.Normal], Vector3.zero, quaternion.identity);
-                newPiece.name = "piece " + x + "-" + y;
-                newPiece.transform.parent = transform;
+                GenerateNewPiece(x,y,PieceType.Empty);
+            }
+        }
+        StartCoroutine(Fill());
+    }
 
-                _pieces[x, y] = newPiece.transform.GetComponent<GamePiece>();
-                _pieces[x ,y].Init(x,y,this,PieceType.Normal);
-                if (_pieces[x,y].IsMovable())
-                { 
-                    _pieces[x,y].MovablePieceRef.Move(x,y);
-                }
-
-                if (_pieces[x,y].IsColored())
+    IEnumerator Fill()
+    {
+        while (FillStep())
+        {
+            yield return new WaitForSeconds(fillTime);
+        }
+    }
+    public bool FillStep()
+    {
+        bool movePiece = false;
+        //从第一行开始逐行检测，使掉落到最底层
+        for (int y = 0; y < yDim -1; y++)
+        {
+            for (int x = 0; x < xDim; x++)
+            {
+                GamePiece piece = _pieces[x, y];
+                if (piece.IsMovable())
                 {
-                    _pieces[x,y].ColorPieceRef.SetColor((ColorPiece.ColorType)Random.Range(0,_pieces[x,y].ColorPieceRef.NumberColor));
+                    GamePiece pieceBelow = _pieces[x, y + 1];
+                    if (pieceBelow.PieceType == PieceType.Empty)
+                    {
+                        Destroy(pieceBelow);
+                        piece.MovablePieceRef.Move(x, y + 1,moveTime);
+                        _pieces[x, y + 1] = piece;
+                        GenerateNewPiece(x, y, PieceType.Empty);
+                        movePiece = true;
+                    }
                 }
             }
         }
-
+        //检测第一行空位
+        for (int x = 0; x < xDim; x++)
+        {
+            GamePiece pieceBelow = _pieces[x, 0];
+            if (pieceBelow.PieceType == PieceType.Empty)
+            {
+                Destroy(pieceBelow);
+                GameObject newPiece =
+                    Instantiate(_piecePrefabDict[PieceType.Normal], GetWorldPosition(x, -1), quaternion.identity);
+                newPiece.transform.parent = transform;
+                newPiece.name = "piece" + x + "_0";
+                
+                _pieces[x, 0] = newPiece.transform.GetComponent<GamePiece>();
+                _pieces[x, 0].Init(x, -1, this, PieceType.Normal);
+                _pieces[x, 0].MovablePieceRef.Move(x, 0,moveTime);
+                _pieces[x,0].ColorPieceRef.SetColor((ColorPiece.ColorType)Random.Range(0,_pieces[x,0].ColorPieceRef.NumberColor));
+                movePiece = true;
+            }
+        }
+        return movePiece;
     }
 
+    public GamePiece GenerateNewPiece(int x, int y, PieceType type)
+    {
+        GameObject newPiece = Instantiate(_piecePrefabDict[type], GetWorldPosition(x, y), quaternion.identity);
+        newPiece.transform.parent = transform;
+        newPiece.name = "Piece " + x + "_" + y;
+
+        _pieces[x, y] = newPiece.GetComponent<GamePiece>();
+        _pieces[x, y].Init(x,y,this,type);
+        return _pieces[x, y];
+    }
+    
     public Vector2 GetWorldPosition(int x, int y)  
     {
         return new Vector2(transform.position.x - xDim / 2f + x, transform.position.y + yDim / 2f - y);

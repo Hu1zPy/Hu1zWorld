@@ -49,6 +49,7 @@ public class ColorPiece : MonoBehaviour
     private void Awake()
     {
         _spriteRenderer = transform.Find("piece").transform.GetComponent<SpriteRenderer>();
+        //初始化字典
         _colorSpritesDic = new Dictionary<ColorType, Sprite>();
         for (int i = 0; i < ColorSprites.Length; i++)
         {
