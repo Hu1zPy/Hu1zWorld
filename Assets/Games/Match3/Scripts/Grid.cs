@@ -34,6 +34,8 @@ public class Grid : MonoBehaviour
     [Header("下降时间")]
     public float moveTime;
 
+    private bool inverse = false;
+
     private Dictionary<PieceType, GameObject> _piecePrefabDict;
     private GamePiece[,] _pieces;
     
@@ -68,8 +70,18 @@ public class Grid : MonoBehaviour
             }
         }
         
+        
+        Destroy(_pieces[1,3].gameObject);
+        GenerateNewPiece(1, 3, PieceType.Bubble);
+        
+        Destroy(_pieces[2,4].gameObject);
+        GenerateNewPiece(2, 4, PieceType.Bubble);
+        
         Destroy(_pieces[4,5].gameObject);
         GenerateNewPiece(4, 5, PieceType.Bubble);
+        
+        Destroy(_pieces[7,7].gameObject);
+        GenerateNewPiece(7, 7, PieceType.Bubble);
         
         StartCoroutine(Fill());
     }
@@ -78,6 +90,7 @@ public class Grid : MonoBehaviour
     {
         while (FillStep())
         {
+            inverse = !inverse;
             yield return new WaitForSeconds(fillTime);
         }
     }
@@ -87,12 +100,20 @@ public class Grid : MonoBehaviour
         //从第一行开始逐行检测，使掉落到最底层
         for (int y = 0; y < yDim -1; y++)
         {
-            for (int x = 0; x < xDim; x++)
+            for (int loopX = 0; loopX < xDim; loopX++)
             {
+                int x = loopX;
+
+                if (inverse)
+                {
+                    x = xDim - loopX - 1;
+                }
+                
                 GamePiece piece = _pieces[x, y];
                 if (piece.IsMovable())
                 {
                     GamePiece pieceBelow = _pieces[x, y + 1];
+                    //先竖向检测是否可以移动
                     if (pieceBelow.PieceType == PieceType.Empty)
                     {
                         Destroy(pieceBelow);
@@ -100,6 +121,55 @@ public class Grid : MonoBehaviour
                         _pieces[x, y + 1] = piece;
                         GenerateNewPiece(x, y, PieceType.Empty);
                         movePiece = true;
+                    }
+                    //再斜线检查
+                    else
+                    {
+                        for (int diag = -1; diag <= 1; diag++)
+                        {
+                            if (diag != 0)
+                            {
+                                int diagX = x + diag;
+                                if (inverse)
+                                {
+                                    diagX = x - diag;
+                                }
+                                
+                                if (diagX >= 0 && diagX < xDim)
+                                {
+                                    GamePiece diagonalPiece = _pieces[diagX, y + 1];
+                                    if (diagonalPiece.PieceType == PieceType.Empty)
+                                    {
+                                        bool hasPieceAbove = true;
+
+                                        for (int aboveY = y; aboveY > 0; aboveY--)
+                                        {
+                                            GamePiece abovePiece = _pieces[diagX, aboveY];
+                                            
+                                            if (abovePiece.IsMovable())
+                                            {
+                                                break;
+                                            }
+                                            else if (abovePiece.PieceType != PieceType.Empty)
+                                            {
+                                                hasPieceAbove = false;
+                                                break;
+                                            }
+                                        }
+
+                                        if (!hasPieceAbove)
+                                        {
+                                            Destroy(diagonalPiece.gameObject);
+                                            piece.MovablePieceRef.Move(diagX, y + 1,moveTime);
+                                            _pieces[diagX, y + 1] = piece;
+                                            GenerateNewPiece(x, y, PieceType.Empty);
+                                            movePiece = true;
+                                            break;  
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
