@@ -137,11 +137,13 @@ public class Grid : MonoBehaviour
                                 
                                 if (diagX >= 0 && diagX < xDim)
                                 {
+                                    //检测斜向方块是否为空
                                     GamePiece diagonalPiece = _pieces[diagX, y + 1];
                                     if (diagonalPiece.PieceType == PieceType.Empty)
                                     {
-                                        bool hasPieceAbove = true;
+                                        bool hasMovablePiece = true;
 
+                                        //检测空白方块头上是否有可下落方块
                                         for (int aboveY = y; aboveY > 0; aboveY--)
                                         {
                                             GamePiece abovePiece = _pieces[diagX, aboveY];
@@ -152,12 +154,12 @@ public class Grid : MonoBehaviour
                                             }
                                             else if (abovePiece.PieceType != PieceType.Empty)
                                             {
-                                                hasPieceAbove = false;
+                                                hasMovablePiece = false;
                                                 break;
                                             }
                                         }
-
-                                        if (!hasPieceAbove)
+                                        //如果没有可下落方块。就斜向填充过去
+                                        if (!hasMovablePiece)
                                         {
                                             Destroy(diagonalPiece.gameObject);
                                             piece.MovablePieceRef.Move(diagX, y + 1,moveTime);
