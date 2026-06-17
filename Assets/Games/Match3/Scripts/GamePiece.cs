@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GamePiece : MonoBehaviour
@@ -11,6 +12,7 @@ public class GamePiece : MonoBehaviour
     private Grid _grid;
     private MovablePiece _movablePiece;
     private ColorPiece _colorPiece;
+    private ClearablePiece _clearablePiece;
 
     public int X
     {
@@ -40,6 +42,7 @@ public class GamePiece : MonoBehaviour
     public Grid.PieceType PieceType => _type;
     public MovablePiece MovablePieceRef => _movablePiece;
     public ColorPiece ColorPieceRef => _colorPiece;
+    public ClearablePiece ClearablePieceRef => _clearablePiece;
 
     public void Init(int x, int y, Grid grid, Grid.PieceType type)
     {
@@ -53,6 +56,7 @@ public class GamePiece : MonoBehaviour
     {
         _movablePiece = transform.GetComponent<MovablePiece>();
         _colorPiece = transform.GetComponent<ColorPiece>();
+        _clearablePiece = transform.GetComponent<ClearablePiece>();
     }
 
     public bool IsMovable()
@@ -63,6 +67,11 @@ public class GamePiece : MonoBehaviour
     public bool IsColored()
     {
         return _colorPiece != null;
+    }
+
+    public bool IsClearable()
+    {
+        return _clearablePiece != null;
     }
 
     private void OnMouseEnter()

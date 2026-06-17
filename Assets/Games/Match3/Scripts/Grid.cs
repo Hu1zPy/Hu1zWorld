@@ -91,11 +91,20 @@ public class Grid : MonoBehaviour
 
     IEnumerator Fill()
     {
-        while (FillStep())
+        bool needsRefill = true;
+
+        while (needsRefill)
         {
-            inverse = !inverse;
             yield return new WaitForSeconds(fillTime);
+            while (FillStep())
+            {
+                inverse = !inverse;
+                yield return new WaitForSeconds(fillTime);
+            }
+
+            needsRefill = ClearAllVailPieces();
         }
+        
     }
     public bool FillStep()
     {
@@ -240,6 +249,10 @@ public class Grid : MonoBehaviour
                 //移动
                 piece1.MovablePieceRef.Move(piece2.X,piece2.Y,moveTime);
                 piece2.MovablePieceRef.Move(piece1X,piece1Y,moveTime);
+
+                ClearAllVailPieces();
+
+                StartCoroutine(Fill());
             }
             else
             {
@@ -478,6 +491,43 @@ public class Grid : MonoBehaviour
         }
         
         return null;
+    }
+
+    private bool ClearAllVailPieces()
+    {
+        bool needsRefill = false;  
+        
+        for (int x = 0; x < xDim; x++)
+        {
+            for (int y = 0; y < yDim; y++)
+            {
+                if (_pieces[x,y].IsClearable())
+                {
+                    List<GamePiece> match = GetMatch(_pieces[x, y], x, y);
+                    if (match != null)
+                    {
+                        for (int i = 0; i < match.Count; i++)
+                        {
+                            ClearPiece(match[i].X, match[i].Y);
+                            needsRefill = true;
+                        }
+                    }
+                }
+            }
+        }
+        return needsRefill;
+    }
+    
+    private bool ClearPiece(int x, int y)
+    {
+        if (_pieces[x,y].IsClearable() && !_pieces[x,y].ClearablePieceRef.IsBeingCleared)
+        {
+            _pieces[x,y].ClearablePieceRef.Clear();
+            GenerateNewPiece(x, y, PieceType.Empty);
+            return true;
+        }
+
+        return false;
     }
 }
 
