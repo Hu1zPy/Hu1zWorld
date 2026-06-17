@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
@@ -229,12 +230,23 @@ public class Grid : MonoBehaviour
             //交互数组元素
             _pieces[piece1.X, piece1.Y] = piece2;
             _pieces[piece2.X, piece2.Y] = piece1;
-            //保留坐标
-            int piece1X = piece1.X;
-            int piece1Y = piece1.Y;
-            //移动
-            piece1.MovablePieceRef.Move(piece2.X,piece2.Y,moveTime);
-            piece2.MovablePieceRef.Move(piece1X,piece1Y,moveTime);
+            
+            if (GetMatch(piece1,piece2.X,piece2.Y) != null ||
+                GetMatch(piece2,piece1.X,piece1.Y) != null)
+            {
+                //保留坐标
+                int piece1X = piece1.X;
+                int piece1Y = piece1.Y;
+                //移动
+                piece1.MovablePieceRef.Move(piece2.X,piece2.Y,moveTime);
+                piece2.MovablePieceRef.Move(piece1X,piece1Y,moveTime);
+            }
+            else
+            {
+                //交互数组元素
+                _pieces[piece1.X, piece1.Y] = piece1;
+                _pieces[piece2.X, piece2.Y] = piece2;
+            }
         }
     }
 
@@ -254,6 +266,218 @@ public class Grid : MonoBehaviour
         {
             SwapPieces(enterPiece,pressPiece);
         }
+    }
+
+    private List<GamePiece> GetMatch(GamePiece piece, int newX, int newY)
+    {
+        //判断是否可以配色
+        if (!piece.IsColored())
+        {
+            return null;
+        }
+        //拿到对于颜色
+        var color = piece.ColorPieceRef.Color;
+        //创建对应列表
+        var horizontalPieces = new List<GamePiece>();
+        var verticalPieces = new List<GamePiece>();
+        var matchingPieces = new List<GamePiece>();
+        
+        //开始匹配横排
+        horizontalPieces.Add(piece);
+        //分不同方向
+        for (int dir = 0; dir <= 1; dir++)
+        {
+            //不同距离
+            for (int xOffset = 1; xOffset < xDim; xOffset++)
+            {
+                int x = 0;
+                //向左
+                if (dir == 0)
+                {
+                    x = newX - xOffset;
+                }
+                //向右
+                if (dir == 1)
+                {
+                    x = newX + xOffset;
+                }
+                //排除越界情况
+                if (x <0 || x >= xDim) {break;}
+                //如果颜色匹配则进列表并继续检测
+                if (_pieces[x, newY].IsColored() && _pieces[x, newY].ColorPieceRef.Color == color)
+                {
+                    horizontalPieces.Add(_pieces[x,newY]);
+                }
+                //颜色不匹配则跳出该方向
+                else
+                {
+                    break;
+                }
+            }
+        }
+        // 添加横向匹配单位
+        if (horizontalPieces.Count >= 3)
+        {
+            for (int i = 0; i < horizontalPieces.Count; i++)
+            {
+                matchingPieces.Add(horizontalPieces[i]);
+            }
+        }
+        // 开始检测 T L 方向
+        if (horizontalPieces.Count >= 3)
+        {
+            for (int i = 0; i < horizontalPieces.Count; i++)
+            {
+                for (int dir = 0; dir <= 1; dir++)
+                {
+                    for (int yOffset = 1; yOffset < yDim; yOffset++)
+                    {
+                        int y = newY;
+                        
+                        if (dir == 0)
+                        {
+                            y = newY - yOffset;
+                        }
+
+                        if (dir == 1)
+                        {
+                            y = newY + yOffset;
+                        }
+
+                        if ( y < 0 || y >= yDim)
+                        {
+                            break;
+                        }
+
+                        if (_pieces[horizontalPieces[i].X,y].IsColored() && _pieces[horizontalPieces[i].X,y].ColorPieceRef.Color == color)
+                        {
+                            verticalPieces.Add(_pieces[horizontalPieces[i].X,y]);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if (verticalPieces.Count < 2)
+                {
+                    verticalPieces.Clear();
+                }
+                else
+                {
+                    foreach (var verticalPiece in verticalPieces)
+                    {
+                        matchingPieces.Add(verticalPiece);
+                    }
+                    break;
+                }
+            }
+        }
+        // 返回匹配列表
+        if (matchingPieces.Count >= 3)
+        {
+            return matchingPieces;
+        }
+        
+        //如果横排没有可消除的
+        horizontalPieces.Clear();
+        verticalPieces.Clear();
+        //开始匹配竖排
+        verticalPieces.Add(piece);
+        //分不同方向
+        for (int dir = 0; dir <= 1; dir++)
+        {
+            //不同距离
+            for (int yOffer = 1; yOffer < yDim; yOffer++)
+            {
+                int y = 0;
+                //向上
+                if (dir == 0)
+                {
+                    y = newY + yOffer;
+                }
+                //向下
+                if (dir == 1)
+                {
+                    y = newY - yOffer;
+                }
+                //排除越界情况
+                if (y <0 || y >= yDim) {break;}
+                //如果颜色匹配则进列表并继续检测
+                if (_pieces[newX, y].IsColored() && _pieces[newX, y].ColorPieceRef.Color == color)
+                {
+                    verticalPieces.Add(_pieces[newX, y]);
+                }
+                //颜色不匹配则跳出该方向
+                else
+                {
+                    break;
+                }
+            }
+        }
+        // 添加竖向匹配单位
+        if (verticalPieces.Count >= 3)
+        {
+            for (int i = 0; i < verticalPieces.Count; i++)
+            {
+                matchingPieces.Add(verticalPieces[i]);
+            }
+        }
+        //开始检查 T L 方向的
+        if (verticalPieces.Count >= 3)
+        {
+            for (int i = 0; i < verticalPieces.Count; i++)
+            {
+                for (int dir = 0; dir <= 1; dir++)
+                {
+                    for (int xOffset = 1; xOffset < xDim; xOffset++)
+                    {
+                        int x = newX;
+                        
+                        if (dir == 0)
+                        {
+                            x = newX - xOffset;
+                        }
+
+                        if (dir == 1)
+                        {
+                            x = newX + xOffset;
+                        }
+
+                        if (x < 0 || x >= xDim)
+                        {
+                            break;
+                        }
+
+                        if (_pieces[x,verticalPieces[i].Y].IsColored() && _pieces[x,verticalPieces[i].Y].ColorPieceRef.Color == color)
+                        {
+                            horizontalPieces.Add(_pieces[x,verticalPieces[i].Y]);
+                        }
+                    }
+                }
+
+                if (horizontalPieces.Count < 2)
+                {
+                    horizontalPieces.Clear();
+                }
+                else
+                {
+                    foreach (var horizontalPiece in horizontalPieces)
+                    {
+                        matchingPieces.Add(horizontalPiece);
+                    }
+                    break;
+                }
+            }
+        }
+        //返回匹配列表
+        if (matchingPieces.Count >= 3)
+        {
+            return matchingPieces;
+        }
+        
+        return null;
     }
 }
 
