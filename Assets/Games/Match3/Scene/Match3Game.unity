@@ -232,7 +232,7 @@ Transform:
   m_GameObject: {fileID: 1568419931}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3, y: -0.5, z: 0}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -260,6 +260,10 @@ MonoBehaviour:
     prefab: {fileID: 3498377921954241871, guid: f8c9613149fec4c459bf48c5964bf41c, type: 3}
   - type: 2
     prefab: {fileID: 3143124572606000862, guid: bed15483e3218f4459c3249daea8dc31, type: 3}
+  - type: 3
+    prefab: {fileID: 7063123896573372103, guid: 02a474bb3d20976488012ff8fdaaddeb, type: 3}
+  - type: 4
+    prefab: {fileID: 3421693183686213030, guid: dd39c34dfc1a482429b466cb350d28c7, type: 3}
   fillTime: 0.1
   moveTime: 0.1
 --- !u!1 &1686817660

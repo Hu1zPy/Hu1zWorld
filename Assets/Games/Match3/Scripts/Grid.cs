@@ -14,6 +14,8 @@ public class Grid : MonoBehaviour
         Empty,
         Normal,
         Bubble,
+        RowClear,
+        ColumnClear,
         Count
     }
 
@@ -23,17 +25,13 @@ public class Grid : MonoBehaviour
         public PieceType type;
         public GameObject prefab;
     }
-    [Header("网格大小")]
-    public int xDim;
+
+    [Header("网格大小")] public int xDim;
     public int yDim;
-    [Header("背景")]
-    public GameObject pieceBg;
-    [Header("预制体列表")]
-    public PiecePrefab[] piecePrefabs;
-    [Header("生成间隔")]
-    public float fillTime;
-    [Header("下降时间")]
-    public float moveTime;
+    [Header("背景")] public GameObject pieceBg;
+    [Header("预制体列表")] public PiecePrefab[] piecePrefabs;
+    [Header("生成间隔")] public float fillTime;
+    [Header("下降时间")] public float moveTime;
 
     private bool inverse = false;
     private GamePiece enterPiece;
@@ -41,7 +39,7 @@ public class Grid : MonoBehaviour
 
     private Dictionary<PieceType, GameObject> _piecePrefabDict;
     private GamePiece[,] _pieces;
-    
+
     private void Start()
     {
         //初始化数据字典
@@ -53,39 +51,41 @@ public class Grid : MonoBehaviour
                 _piecePrefabDict[piecePrefabs[i].type] = piecePrefabs[i].prefab;
             }
         }
+
         //生成背景
         for (int x = 0; x < xDim; x++)
         {
             for (int y = 0; y < yDim; y++)
             {
-                GameObject background = Instantiate(pieceBg, GetWorldPosition(x,y), Quaternion.identity);
+                GameObject background = Instantiate(pieceBg, GetWorldPosition(x, y), Quaternion.identity);
                 background.gameObject.name = "BG " + x + "-" + y;
                 background.transform.parent = transform;
             }
         }
+
         //生成单位
         _pieces = new GamePiece[xDim, yDim];
         for (int x = 0; x < xDim; x++)
         {
             for (int y = 0; y < yDim; y++)
             {
-                GenerateNewPiece(x,y,PieceType.Empty);
+                GenerateNewPiece(x, y, PieceType.Empty);
             }
         }
-        
-        
-        Destroy(_pieces[1,3].gameObject);
+
+
+        Destroy(_pieces[1, 3].gameObject);
         GenerateNewPiece(1, 3, PieceType.Bubble);
-        
-        Destroy(_pieces[2,4].gameObject);
+
+        Destroy(_pieces[2, 4].gameObject);
         GenerateNewPiece(2, 4, PieceType.Bubble);
-        
-        Destroy(_pieces[4,5].gameObject);
+
+        Destroy(_pieces[4, 5].gameObject);
         GenerateNewPiece(4, 5, PieceType.Bubble);
-        
-        Destroy(_pieces[7,7].gameObject);
+
+        Destroy(_pieces[7, 7].gameObject);
         GenerateNewPiece(7, 7, PieceType.Bubble);
-        
+
         StartCoroutine(Fill());
     }
 
@@ -104,13 +104,14 @@ public class Grid : MonoBehaviour
 
             needsRefill = ClearAllVailPieces();
         }
-        
+
     }
+
     public bool FillStep()
     {
         bool movePiece = false;
         //从第一行开始逐行检测，使掉落到最底层
-        for (int y = 0; y < yDim -1; y++)
+        for (int y = 0; y < yDim - 1; y++)
         {
             for (int loopX = 0; loopX < xDim; loopX++)
             {
@@ -120,7 +121,7 @@ public class Grid : MonoBehaviour
                 {
                     x = xDim - loopX - 1;
                 }
-                
+
                 GamePiece piece = _pieces[x, y];
                 if (piece.IsMovable())
                 {
@@ -129,7 +130,7 @@ public class Grid : MonoBehaviour
                     if (pieceBelow.PieceType == PieceType.Empty)
                     {
                         Destroy(pieceBelow);
-                        piece.MovablePieceRef.Move(x, y + 1,moveTime);
+                        piece.MovablePieceRef.Move(x, y + 1, moveTime);
                         _pieces[x, y + 1] = piece;
                         GenerateNewPiece(x, y, PieceType.Empty);
                         movePiece = true;
@@ -146,7 +147,7 @@ public class Grid : MonoBehaviour
                                 {
                                     diagX = x - diag;
                                 }
-                                
+
                                 if (diagX >= 0 && diagX < xDim)
                                 {
                                     //检测斜向方块是否为空
@@ -159,7 +160,7 @@ public class Grid : MonoBehaviour
                                         for (int aboveY = y; aboveY > 0; aboveY--)
                                         {
                                             GamePiece abovePiece = _pieces[diagX, aboveY];
-                                            
+
                                             if (abovePiece.IsMovable())
                                             {
                                                 break;
@@ -170,15 +171,16 @@ public class Grid : MonoBehaviour
                                                 break;
                                             }
                                         }
+
                                         //如果没有可下落方块。就斜向填充过去
                                         if (!hasMovablePiece)
                                         {
                                             Destroy(diagonalPiece.gameObject);
-                                            piece.MovablePieceRef.Move(diagX, y + 1,moveTime);
+                                            piece.MovablePieceRef.Move(diagX, y + 1, moveTime);
                                             _pieces[diagX, y + 1] = piece;
                                             GenerateNewPiece(x, y, PieceType.Empty);
                                             movePiece = true;
-                                            break;  
+                                            break;
                                         }
                                     }
                                 }
@@ -188,6 +190,7 @@ public class Grid : MonoBehaviour
                 }
             }
         }
+
         //检测第一行空位
         for (int x = 0; x < xDim; x++)
         {
@@ -199,14 +202,16 @@ public class Grid : MonoBehaviour
                     Instantiate(_piecePrefabDict[PieceType.Normal], GetWorldPosition(x, -1), quaternion.identity);
                 newPiece.transform.parent = transform;
                 newPiece.name = "piece" + x + "_0";
-                
+
                 _pieces[x, 0] = newPiece.transform.GetComponent<GamePiece>();
                 _pieces[x, 0].Init(x, -1, this, PieceType.Normal);
-                _pieces[x, 0].MovablePieceRef.Move(x, 0,moveTime);
-                _pieces[x,0].ColorPieceRef.SetColor((ColorPiece.ColorType)Random.Range(0,_pieces[x,0].ColorPieceRef.NumberColor));
+                _pieces[x, 0].MovablePieceRef.Move(x, 0, moveTime);
+                _pieces[x, 0].ColorPieceRef
+                    .SetColor((ColorPiece.ColorType)Random.Range(5, _pieces[x, 0].ColorPieceRef.NumberColor));
                 movePiece = true;
             }
         }
+
         return movePiece;
     }
 
@@ -215,13 +220,14 @@ public class Grid : MonoBehaviour
         GameObject newPiece = Instantiate(_piecePrefabDict[type], GetWorldPosition(x, y), quaternion.identity);
         newPiece.transform.parent = transform;
         newPiece.name = "Piece " + x + "_" + y;
-
+        
+        //Debug.Log("测试---生成新的方块，方块类型为：：" + type);
         _pieces[x, y] = newPiece.GetComponent<GamePiece>();
-        _pieces[x, y].Init(x,y,this,type);
+        _pieces[x, y].Init(x, y, this, type);
         return _pieces[x, y];
     }
-    
-    public Vector2 GetWorldPosition(int x, int y)  
+
+    public Vector2 GetWorldPosition(int x, int y)
     {
         return new Vector2(transform.position.x - xDim / 2f + x, transform.position.y + yDim / 2f - y);
     }
@@ -239,18 +245,31 @@ public class Grid : MonoBehaviour
             //交互数组元素
             _pieces[piece1.X, piece1.Y] = piece2;
             _pieces[piece2.X, piece2.Y] = piece1;
-            
-            if (GetMatch(piece1,piece2.X,piece2.Y) != null ||
-                GetMatch(piece2,piece1.X,piece1.Y) != null)
+
+            if (GetMatch(piece1, piece2.X, piece2.Y) != null ||
+                GetMatch(piece2, piece1.X, piece1.Y) != null)
             {
                 //保留坐标
                 int piece1X = piece1.X;
                 int piece1Y = piece1.Y;
                 //移动
-                piece1.MovablePieceRef.Move(piece2.X,piece2.Y,moveTime);
-                piece2.MovablePieceRef.Move(piece1X,piece1Y,moveTime);
+                piece1.MovablePieceRef.Move(piece2.X, piece2.Y, moveTime);
+                piece2.MovablePieceRef.Move(piece1X, piece1Y, moveTime);
 
                 ClearAllVailPieces();
+
+                if (piece1.PieceType == PieceType.RowClear || piece1.PieceType == PieceType.ColumnClear)
+                {
+                    ClearPiece(piece1.X, piece1.Y);
+                }
+
+                if (piece2.PieceType == PieceType.RowClear || piece2.PieceType == PieceType.ColumnClear)
+                {
+                    ClearPiece(piece2.X, piece2.Y);
+                }
+
+                pressPiece = null;
+                enterPiece = null;
 
                 StartCoroutine(Fill());
             }
@@ -277,7 +296,7 @@ public class Grid : MonoBehaviour
     {
         if (IsAdjacent(enterPiece, pressPiece))
         {
-            SwapPieces(enterPiece,pressPiece);
+            SwapPieces(enterPiece, pressPiece);
         }
     }
 
@@ -288,13 +307,14 @@ public class Grid : MonoBehaviour
         {
             return null;
         }
+
         //拿到对于颜色
         var color = piece.ColorPieceRef.Color;
         //创建对应列表
         var horizontalPieces = new List<GamePiece>();
         var verticalPieces = new List<GamePiece>();
         var matchingPieces = new List<GamePiece>();
-        
+
         //开始匹配横排
         horizontalPieces.Add(piece);
         //分不同方向
@@ -309,17 +329,23 @@ public class Grid : MonoBehaviour
                 {
                     x = newX - xOffset;
                 }
+
                 //向右
                 if (dir == 1)
                 {
                     x = newX + xOffset;
                 }
+
                 //排除越界情况
-                if (x <0 || x >= xDim) {break;}
+                if (x < 0 || x >= xDim)
+                {
+                    break;
+                }
+
                 //如果颜色匹配则进列表并继续检测
                 if (_pieces[x, newY].IsColored() && _pieces[x, newY].ColorPieceRef.Color == color)
                 {
-                    horizontalPieces.Add(_pieces[x,newY]);
+                    horizontalPieces.Add(_pieces[x, newY]);
                 }
                 //颜色不匹配则跳出该方向
                 else
@@ -328,6 +354,7 @@ public class Grid : MonoBehaviour
                 }
             }
         }
+
         // 添加横向匹配单位
         if (horizontalPieces.Count >= 3)
         {
@@ -336,6 +363,7 @@ public class Grid : MonoBehaviour
                 matchingPieces.Add(horizontalPieces[i]);
             }
         }
+
         // 开始检测 T L 方向
         if (horizontalPieces.Count >= 3)
         {
@@ -346,7 +374,7 @@ public class Grid : MonoBehaviour
                     for (int yOffset = 1; yOffset < yDim; yOffset++)
                     {
                         int y = newY;
-                        
+
                         if (dir == 0)
                         {
                             y = newY - yOffset;
@@ -357,14 +385,15 @@ public class Grid : MonoBehaviour
                             y = newY + yOffset;
                         }
 
-                        if ( y < 0 || y >= yDim)
+                        if (y < 0 || y >= yDim)
                         {
                             break;
                         }
 
-                        if (_pieces[horizontalPieces[i].X,y].IsColored() && _pieces[horizontalPieces[i].X,y].ColorPieceRef.Color == color)
+                        if (_pieces[horizontalPieces[i].X, y].IsColored() &&
+                            _pieces[horizontalPieces[i].X, y].ColorPieceRef.Color == color)
                         {
-                            verticalPieces.Add(_pieces[horizontalPieces[i].X,y]);
+                            verticalPieces.Add(_pieces[horizontalPieces[i].X, y]);
                         }
                         else
                         {
@@ -383,16 +412,18 @@ public class Grid : MonoBehaviour
                     {
                         matchingPieces.Add(verticalPiece);
                     }
+
                     break;
                 }
             }
         }
+
         // 返回匹配列表
         if (matchingPieces.Count >= 3)
         {
             return matchingPieces;
         }
-        
+
         //如果横排没有可消除的
         horizontalPieces.Clear();
         verticalPieces.Clear();
@@ -410,13 +441,19 @@ public class Grid : MonoBehaviour
                 {
                     y = newY + yOffer;
                 }
+
                 //向下
                 if (dir == 1)
                 {
                     y = newY - yOffer;
                 }
+
                 //排除越界情况
-                if (y <0 || y >= yDim) {break;}
+                if (y < 0 || y >= yDim)
+                {
+                    break;
+                }
+
                 //如果颜色匹配则进列表并继续检测
                 if (_pieces[newX, y].IsColored() && _pieces[newX, y].ColorPieceRef.Color == color)
                 {
@@ -429,6 +466,7 @@ public class Grid : MonoBehaviour
                 }
             }
         }
+
         // 添加竖向匹配单位
         if (verticalPieces.Count >= 3)
         {
@@ -437,6 +475,7 @@ public class Grid : MonoBehaviour
                 matchingPieces.Add(verticalPieces[i]);
             }
         }
+
         //开始检查 T L 方向的
         if (verticalPieces.Count >= 3)
         {
@@ -447,7 +486,7 @@ public class Grid : MonoBehaviour
                     for (int xOffset = 1; xOffset < xDim; xOffset++)
                     {
                         int x = newX;
-                        
+
                         if (dir == 0)
                         {
                             x = newX - xOffset;
@@ -463,9 +502,10 @@ public class Grid : MonoBehaviour
                             break;
                         }
 
-                        if (_pieces[x,verticalPieces[i].Y].IsColored() && _pieces[x,verticalPieces[i].Y].ColorPieceRef.Color == color)
+                        if (_pieces[x, verticalPieces[i].Y].IsColored() &&
+                            _pieces[x, verticalPieces[i].Y].ColorPieceRef.Color == color)
                         {
-                            horizontalPieces.Add(_pieces[x,verticalPieces[i].Y]);
+                            horizontalPieces.Add(_pieces[x, verticalPieces[i].Y]);
                         }
                     }
                 }
@@ -480,54 +520,147 @@ public class Grid : MonoBehaviour
                     {
                         matchingPieces.Add(horizontalPiece);
                     }
+
                     break;
                 }
             }
         }
+
         //返回匹配列表
         if (matchingPieces.Count >= 3)
         {
             return matchingPieces;
         }
-        
+
         return null;
     }
 
     private bool ClearAllVailPieces()
     {
-        bool needsRefill = false;  
-        
+        bool needsRefill = false;
+
         for (int x = 0; x < xDim; x++)
         {
             for (int y = 0; y < yDim; y++)
             {
-                if (_pieces[x,y].IsClearable())
+                if (_pieces[x, y].IsClearable())
                 {
                     List<GamePiece> match = GetMatch(_pieces[x, y], x, y);
                     if (match != null)
                     {
+                        //生成特殊方块类型
+                        PieceType specialPieceType = PieceType.Count;
+                        if (match.Count == 4)
+                        {
+                            //不是由交换进入的
+                            if (pressPiece == null || enterPiece == null)
+                            {
+                                specialPieceType = (PieceType)Random.Range((int)PieceType.RowClear,
+                                    (int)PieceType.ColumnClear);
+                            }
+                            else if (enterPiece.Y == pressPiece.Y)
+                            {
+                                specialPieceType = PieceType.RowClear;
+                            }
+                            else
+                            {
+                                specialPieceType = PieceType.ColumnClear;
+                            }
+                        }
+
+                        //生成特殊方块位置(默认随机)
+                        int specialPieceX = match[Random.Range(0, match.Count)].X;
+                        int specialPieceY = match[Random.Range(0, match.Count)].Y;
+
                         for (int i = 0; i < match.Count; i++)
                         {
                             ClearPiece(match[i].X, match[i].Y);
                             needsRefill = true;
+                            //如果是交换导致的消除，则在交换处生成
+                            if (match[i] == enterPiece || match[i] == pressPiece)
+                            {
+                                specialPieceX = match[i].X;
+                                specialPieceY = match[i].Y;
+                            }
+                        }
+
+                        if (specialPieceType != PieceType.Count)
+                        {
+                            Destroy(_pieces[specialPieceX, specialPieceY]);
+                            GamePiece newPiece = GenerateNewPiece(specialPieceX, specialPieceY, specialPieceType);
+
+                            Debug.Log("测试---生成新的特殊方块：" + specialPieceType.ToString());
+                            
+                            if ((specialPieceType == PieceType.RowClear || specialPieceType == PieceType.ColumnClear) &&
+                                newPiece.IsColored() && match[0].IsColored())
+                            {
+                                newPiece.ColorPieceRef.SetColor(match[0].ColorPieceRef.Color);
+                            }
                         }
                     }
                 }
             }
         }
+
         return needsRefill;
     }
-    
+
     private bool ClearPiece(int x, int y)
     {
-        if (_pieces[x,y].IsClearable() && !_pieces[x,y].ClearablePieceRef.IsBeingCleared)
+        if (_pieces[x, y].IsClearable() && !_pieces[x, y].ClearablePieceRef.IsBeingCleared)
         {
-            _pieces[x,y].ClearablePieceRef.Clear();
+            _pieces[x, y].ClearablePieceRef.Clear();
             GenerateNewPiece(x, y, PieceType.Empty);
+            ClearObstacle(x, y);
             return true;
         }
 
+
         return false;
     }
+
+    private void ClearObstacle(int x, int y)
+    {
+        for (int adjacentX = x - 1; adjacentX <= x + 1; adjacentX++)
+        {
+            if (adjacentX != x && adjacentX >= 0 && adjacentX < xDim)
+            {
+                if (_pieces[adjacentX, y].PieceType == PieceType.Bubble && _pieces[adjacentX, y].IsClearable())
+                {
+                    _pieces[adjacentX, y].ClearablePieceRef.Clear();
+                    GenerateNewPiece(adjacentX, y, PieceType.Empty);
+                }
+            }
+        }
+
+        for (int adjacentY = y - 1; adjacentY <= y + 1; adjacentY++)
+        {
+            if (adjacentY != y && adjacentY >= 0 && adjacentY < yDim)
+            {
+                if (_pieces[x, adjacentY].PieceType == PieceType.Bubble && _pieces[x, adjacentY].IsClearable())
+                {
+                    _pieces[x, adjacentY].ClearablePieceRef.Clear();
+                    GenerateNewPiece(x, adjacentY, PieceType.Empty);
+                }
+            }
+        }
+    }
+
+    public void ClearRow(int y)
+    {
+        for (int x = 0; x < xDim; x++)
+        {
+            ClearPiece(x, y);
+        }
+    }
+
+    public void ClearColumn(int x)
+    {
+        for (int y = 0; y < yDim; y++)
+        {
+            ClearPiece(x, y);
+        }
+    }
+
 }
 
