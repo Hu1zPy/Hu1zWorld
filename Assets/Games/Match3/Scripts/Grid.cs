@@ -16,6 +16,7 @@ public class Grid : MonoBehaviour
         Bubble,
         RowClear,
         ColumnClear,
+        Rainbow,
         Count
     }
 
@@ -36,6 +37,8 @@ public class Grid : MonoBehaviour
     private bool inverse = false;
     private GamePiece enterPiece;
     private GamePiece pressPiece;
+
+    private bool isFilling;
 
     private Dictionary<PieceType, GameObject> _piecePrefabDict;
     private GamePiece[,] _pieces;
@@ -92,6 +95,7 @@ public class Grid : MonoBehaviour
     IEnumerator Fill()
     {
         bool needsRefill = true;
+        isFilling = needsRefill;
 
         while (needsRefill)
         {
@@ -103,6 +107,7 @@ public class Grid : MonoBehaviour
             }
 
             needsRefill = ClearAllVailPieces();
+            isFilling = needsRefill;
         }
 
     }
@@ -129,7 +134,7 @@ public class Grid : MonoBehaviour
                     //先竖向检测是否可以移动
                     if (pieceBelow.PieceType == PieceType.Empty)
                     {
-                        Destroy(pieceBelow);
+                        Destroy(pieceBelow.gameObject);
                         piece.MovablePieceRef.Move(x, y + 1, moveTime);
                         _pieces[x, y + 1] = piece;
                         GenerateNewPiece(x, y, PieceType.Empty);
@@ -197,7 +202,7 @@ public class Grid : MonoBehaviour
             GamePiece pieceBelow = _pieces[x, 0];
             if (pieceBelow.PieceType == PieceType.Empty)
             {
-                Destroy(pieceBelow);
+                Destroy(pieceBelow.gameObject);
                 GameObject newPiece =
                     Instantiate(_piecePrefabDict[PieceType.Normal], GetWorldPosition(x, -1), quaternion.identity);
                 newPiece.transform.parent = transform;
@@ -212,6 +217,7 @@ public class Grid : MonoBehaviour
             }
         }
 
+        isFilling = movePiece;
         return movePiece;
     }
 
@@ -221,7 +227,6 @@ public class Grid : MonoBehaviour
         newPiece.transform.parent = transform;
         newPiece.name = "Piece " + x + "_" + y;
         
-        //Debug.Log("测试---生成新的方块，方块类型为：：" + type);
         _pieces[x, y] = newPiece.GetComponent<GamePiece>();
         _pieces[x, y].Init(x, y, this, type);
         return _pieces[x, y];
@@ -247,14 +252,36 @@ public class Grid : MonoBehaviour
             _pieces[piece2.X, piece2.Y] = piece1;
 
             if (GetMatch(piece1, piece2.X, piece2.Y) != null ||
-                GetMatch(piece2, piece1.X, piece1.Y) != null)
-            {
+                GetMatch(piece2, piece1.X, piece1.Y) != null ||
+                piece1.PieceType == PieceType.Rainbow ||
+                piece2.PieceType == PieceType.Rainbow ) {
                 //保留坐标
                 int piece1X = piece1.X;
                 int piece1Y = piece1.Y;
                 //移动
                 piece1.MovablePieceRef.Move(piece2.X, piece2.Y, moveTime);
                 piece2.MovablePieceRef.Move(piece1X, piece1Y, moveTime);
+
+                if (piece1.PieceType == PieceType.Rainbow && piece1.IsClearable() && piece2.IsColored())
+                {
+                    ClearColorPiece clearColorPiece = piece1.GetComponent<ClearColorPiece>();
+                    if (clearColorPiece)
+                    {
+                        clearColorPiece.Color = piece2.ColorPieceRef.Color;
+                    }
+
+                    ClearPiece(piece1.X, piece1.Y);
+                }
+                if (piece2.PieceType == PieceType.Rainbow && piece2.IsClearable() && piece1.IsColored())
+                {
+                    ClearColorPiece clearColorPiece = piece2.GetComponent<ClearColorPiece>();
+                    if (clearColorPiece)
+                    {
+                        clearColorPiece.Color = piece1.ColorPieceRef.Color;
+                    }
+
+                    ClearPiece(piece2.X, piece2.Y);
+                }
 
                 ClearAllVailPieces();
 
@@ -294,7 +321,7 @@ public class Grid : MonoBehaviour
 
     public void ReleasePiece()
     {
-        if (IsAdjacent(enterPiece, pressPiece))
+        if (IsAdjacent(enterPiece, pressPiece) && !isFilling)
         {
             SwapPieces(enterPiece, pressPiece);
         }
@@ -566,6 +593,9 @@ public class Grid : MonoBehaviour
                             {
                                 specialPieceType = PieceType.ColumnClear;
                             }
+                        }else if (match.Count >= 5)
+                        {
+                            specialPieceType = PieceType.Rainbow;
                         }
 
                         //生成特殊方块位置(默认随机)
@@ -574,27 +604,30 @@ public class Grid : MonoBehaviour
 
                         for (int i = 0; i < match.Count; i++)
                         {
-                            ClearPiece(match[i].X, match[i].Y);
-                            needsRefill = true;
-                            //如果是交换导致的消除，则在交换处生成
-                            if (match[i] == enterPiece || match[i] == pressPiece)
+                            if (ClearPiece(match[i].X, match[i].Y))
                             {
-                                specialPieceX = match[i].X;
-                                specialPieceY = match[i].Y;
+                                needsRefill = true;
+                                //如果是交换导致的消除，则在交换处生成
+                                if (match[i] == enterPiece || match[i] == pressPiece)
+                                {
+                                    specialPieceX = match[i].X;
+                                    specialPieceY = match[i].Y;
+                                }
                             }
                         }
-
                         if (specialPieceType != PieceType.Count)
                         {
-                            Destroy(_pieces[specialPieceX, specialPieceY]);
+                            Destroy(_pieces[specialPieceX, specialPieceY].gameObject);
                             GamePiece newPiece = GenerateNewPiece(specialPieceX, specialPieceY, specialPieceType);
 
                             Debug.Log("测试---生成新的特殊方块：" + specialPieceType.ToString());
                             
-                            if ((specialPieceType == PieceType.RowClear || specialPieceType == PieceType.ColumnClear) &&
-                                newPiece.IsColored() && match[0].IsColored())
-                            {
+                            if ((specialPieceType == PieceType.RowClear || specialPieceType == PieceType.ColumnClear) 
+                                && newPiece.IsColored() && match[0].IsColored()) {
                                 newPiece.ColorPieceRef.SetColor(match[0].ColorPieceRef.Color);
+                            }else if (specialPieceType == PieceType.Rainbow && newPiece.IsColored())
+                            {
+                                newPiece.ColorPieceRef.SetColor(ColorPiece.ColorType.Any);
                             }
                         }
                     }
@@ -659,6 +692,21 @@ public class Grid : MonoBehaviour
         for (int y = 0; y < yDim; y++)
         {
             ClearPiece(x, y);
+        }
+    }
+
+    public void ClearColor(ColorPiece.ColorType colorType)
+    {
+        for (int x = 0; x < xDim; x++)
+        {
+            for (int y = 0; y < yDim; y++)
+            {
+                if (_pieces[x, y].IsColored() && 
+                    (_pieces[x, y].ColorPieceRef.Color == colorType || colorType == ColorPiece.ColorType.Any))
+                {
+                    ClearPiece(x,y); 
+                }
+            }
         }
     }
 
