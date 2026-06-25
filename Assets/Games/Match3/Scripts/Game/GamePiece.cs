@@ -6,10 +6,11 @@ using UnityEngine;
 
 public class GamePiece : MonoBehaviour
 {
+    public int score;
     private int _x;
     private int _y;
-    private Grid.PieceType _type;
-    private Grid _grid;
+    private GameGrid.PieceType _type;
+    private GameGrid _grid;
     private MovablePiece _movablePiece;
     private ColorPiece _colorPiece;
     private ClearablePiece _clearablePiece;
@@ -37,14 +38,14 @@ public class GamePiece : MonoBehaviour
         }
         get => _y;
     }
-    public Grid GridRef => _grid;
+    public GameGrid GridRef => _grid;
 
-    public Grid.PieceType PieceType => _type;
+    public GameGrid.PieceType PieceType => _type;
     public MovablePiece MovablePieceRef => _movablePiece;
     public ColorPiece ColorPieceRef => _colorPiece;
     public ClearablePiece ClearablePieceRef => _clearablePiece;
 
-    public void Init(int x, int y, Grid grid, Grid.PieceType type)
+    public void Init(int x, int y, GameGrid grid, GameGrid.PieceType type)
     {
         _x = x;
         _y = y;

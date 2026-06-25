@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
-public class Grid : MonoBehaviour
+public class GameGrid : MonoBehaviour
 {
     public enum PieceType
     {
@@ -19,18 +19,27 @@ public class Grid : MonoBehaviour
         Rainbow,
         Count
     }
-
+    public MatchLevel Level;
+    
     [Serializable]
     public struct PiecePrefab
     {
         public PieceType type;
         public GameObject prefab;
     }
+    [Serializable]
+    public struct InitialPieces
+    {
+        public PieceType type;
+        public int X;
+        public int Y;
+    }
 
     [Header("网格大小")] public int xDim;
     public int yDim;
     [Header("背景")] public GameObject pieceBg;
     [Header("预制体列表")] public PiecePrefab[] piecePrefabs;
+    [Header("初始方块列表")] public InitialPieces[] initialPieces;
     [Header("生成间隔")] public float fillTime;
     [Header("下降时间")] public float moveTime;
 
@@ -39,11 +48,12 @@ public class Grid : MonoBehaviour
     private GamePiece pressPiece;
 
     private bool isFilling;
+    private bool gameOver = false;
 
     private Dictionary<PieceType, GameObject> _piecePrefabDict;
     private GamePiece[,] _pieces;
 
-    private void Start()
+    private void Awake()
     {
         //初始化数据字典
         _piecePrefabDict = new Dictionary<PieceType, GameObject>();
@@ -65,30 +75,28 @@ public class Grid : MonoBehaviour
                 background.transform.parent = transform;
             }
         }
-
-        //生成单位
+        
         _pieces = new GamePiece[xDim, yDim];
+        //生成初始元素
+        for (int i = 0; i < initialPieces.Length; i++)
+        {
+            if (initialPieces[i].X >= 0 && initialPieces[i].X < xDim && initialPieces[i].Y >= 0 && initialPieces[i].Y < yDim)
+            {
+                GenerateNewPiece(initialPieces[i].X, initialPieces[i].Y, initialPieces[i].type);
+            }
+        }
+        
+        //生成单位
         for (int x = 0; x < xDim; x++)
         {
             for (int y = 0; y < yDim; y++)
             {
-                GenerateNewPiece(x, y, PieceType.Empty);
+                if (_pieces[x,y] == null)
+                {
+                    GenerateNewPiece(x, y, PieceType.Empty);
+                }
             }
         }
-
-
-        Destroy(_pieces[1, 3].gameObject);
-        GenerateNewPiece(1, 3, PieceType.Bubble);
-
-        Destroy(_pieces[2, 4].gameObject);
-        GenerateNewPiece(2, 4, PieceType.Bubble);
-
-        Destroy(_pieces[4, 5].gameObject);
-        GenerateNewPiece(4, 5, PieceType.Bubble);
-
-        Destroy(_pieces[7, 7].gameObject);
-        GenerateNewPiece(7, 7, PieceType.Bubble);
-
         StartCoroutine(Fill());
     }
 
@@ -245,6 +253,10 @@ public class Grid : MonoBehaviour
 
     public void SwapPieces(GamePiece piece1, GamePiece piece2)
     {
+        if (gameOver) {
+            return;
+        }
+        
         if (piece1.IsMovable() && piece2.IsMovable())
         {
             //交互数组元素
@@ -299,6 +311,8 @@ public class Grid : MonoBehaviour
                 enterPiece = null;
 
                 StartCoroutine(Fill());
+                
+                Level.OnMove();
             }
             else
             {
@@ -710,5 +724,9 @@ public class Grid : MonoBehaviour
         }
     }
 
+    public void GameOver()
+    {
+        gameOver = true;
+    }
 }
 
