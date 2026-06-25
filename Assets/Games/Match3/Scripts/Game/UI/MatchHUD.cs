@@ -7,6 +7,7 @@ using UnityEngine;
 public class MatchHUD : MonoBehaviour
 {
     public MatchLevel level;
+    public MatchGameOver gameOver;
     
     public TextMeshProUGUI remainingNumber;
     public TextMeshProUGUI remainingSubText;
@@ -16,7 +17,6 @@ public class MatchHUD : MonoBehaviour
     public GameObject[] stars;
 
     private int starIndex = 0;
-    private bool isGameOver = false;
 
     private void Start()
     {
@@ -96,13 +96,13 @@ public class MatchHUD : MonoBehaviour
         }
     }
 
-    public void OnGameWin(int score)
+    public void OnGameWin(int scores)
     {
-        isGameOver = true;
+        gameOver.ShowWin(scores,starIndex);
     }
 
-    public void OnGameLose()
+    public void OnGameLose(int scores)
     {
-        isGameOver = true;
+        gameOver.ShowLose(scores);
     }
 }

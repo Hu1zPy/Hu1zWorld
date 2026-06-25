@@ -48,6 +48,8 @@ public class GameGrid : MonoBehaviour
     private GamePiece pressPiece;
 
     private bool isFilling;
+    public bool IsFilling => isFilling;
+    
     private bool gameOver = false;
 
     private Dictionary<PieceType, GameObject> _piecePrefabDict;
@@ -103,21 +105,22 @@ public class GameGrid : MonoBehaviour
     IEnumerator Fill()
     {
         bool needsRefill = true;
-        isFilling = needsRefill;
+        isFilling = true;
 
         while (needsRefill)
         {
             yield return new WaitForSeconds(fillTime);
+            //只要没填完一直填
             while (FillStep())
             {
                 inverse = !inverse;
                 yield return new WaitForSeconds(fillTime);
             }
-
+            //填完后检测一下新的消除，如果有消除继续填，只要没填完一直填
             needsRefill = ClearAllVailPieces();
-            isFilling = needsRefill;
         }
-
+        //循环完成，结束填补
+        isFilling = false;
     }
 
     public bool FillStep()
