@@ -634,7 +634,7 @@ public class GameGrid : MonoBehaviour
                             Destroy(_pieces[specialPieceX, specialPieceY].gameObject);
                             GamePiece newPiece = GenerateNewPiece(specialPieceX, specialPieceY, specialPieceType);
 
-                            Debug.Log("测试---生成新的特殊方块：" + specialPieceType.ToString());
+                            //Debug.Log("测试---生成新的特殊方块：" + specialPieceType.ToString());
                             
                             if ((specialPieceType == PieceType.RowClear || specialPieceType == PieceType.ColumnClear) 
                                 && newPiece.IsColored() && match[0].IsColored()) {
@@ -727,6 +727,7 @@ public class GameGrid : MonoBehaviour
     public void GameOver()
     {
         gameOver = true;
+        Debug.Log("===游戏结束===");
     }
 }
 

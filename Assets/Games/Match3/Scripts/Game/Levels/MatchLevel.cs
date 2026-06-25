@@ -24,14 +24,16 @@ public class MatchLevel : MonoBehaviour
 
     protected int currentScore;
 
-    public virtual void GameWin()
+    protected virtual void GameWin()
     {
         GameGrid.GameOver();
+        Debug.Log("===关卡胜利===");
     }
 
-    public virtual void GameLose()
+    protected virtual void GameLose()
     {
-        
+        GameGrid.GameOver();
+        Debug.Log("===关卡失败===");
     }
 
     public virtual void OnMove()
@@ -42,6 +44,5 @@ public class MatchLevel : MonoBehaviour
     public virtual void OnPieceCleared(GamePiece piece)
     {
         currentScore += piece.score;
-        Debug.Log("测试---当前分数为：" + currentScore);
     }
 }
