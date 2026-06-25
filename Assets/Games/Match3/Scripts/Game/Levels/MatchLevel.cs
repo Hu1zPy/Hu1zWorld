@@ -16,7 +16,7 @@ public class MatchLevel : MonoBehaviour
         set => _type = value;
         get => _type;
     }
-    public GameGrid GameGrid;
+    public GameGrid gameGrid;
 
     public int score1Star;
     public int score2Star;
@@ -26,13 +26,13 @@ public class MatchLevel : MonoBehaviour
 
     protected virtual void GameWin()
     {
-        GameGrid.GameOver();
+        gameGrid.GameOver();
         Debug.Log("===关卡胜利===");
     }
 
     protected virtual void GameLose()
     {
-        GameGrid.GameOver();
+        gameGrid.GameOver();
         Debug.Log("===关卡失败===");
     }
 

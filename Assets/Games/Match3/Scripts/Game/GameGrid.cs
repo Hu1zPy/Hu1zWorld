@@ -729,5 +729,22 @@ public class GameGrid : MonoBehaviour
         gameOver = true;
         Debug.Log("===游戏结束===");
     }
+
+    public List<GamePiece> GetPiecesOfType(PieceType type)
+    {
+        List<GamePiece> piecesOfType = new List<GamePiece>();
+        for (int x = 0; x < xDim; x++)
+        {
+            for (int y = 0; y < yDim; y++)
+            {
+                if (_pieces[x,y].PieceType == type)
+                {
+                    piecesOfType.Add(_pieces[x,y]);
+                }
+            }
+        }
+
+        return piecesOfType;
+    }
 }
 
