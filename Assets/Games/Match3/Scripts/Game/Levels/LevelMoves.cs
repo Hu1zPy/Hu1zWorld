@@ -12,6 +12,10 @@ public class LevelMoves : MatchLevel
     private void Start()
     {
         _type = LevelType.Moves;
+        matchHUD.SetScore(currentScore);
+        matchHUD.SetLevelType(_type);
+        matchHUD.SetRemaining(numberMoves);
+        matchHUD.SetTarget(targetScore);
         Debug.Log("===进入游戏 ：步数模式===");
         Debug.Log("===剩余步数 ："+numberMoves+"===");
         Debug.Log("===目标分数 ："+targetScore+"===");
@@ -22,6 +26,7 @@ public class LevelMoves : MatchLevel
         base.OnMove();
         moveUsed++;
         int remainingMoves = numberMoves - moveUsed;
+        matchHUD.SetRemaining(remainingMoves);
         Debug.Log("===当前分数为 ："+currentScore+"===");
         Debug.Log("===剩余步数为 ："+ remainingMoves +"===");
         if (remainingMoves == 0)

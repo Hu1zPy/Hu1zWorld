@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,7 @@ public class MatchLevel : MonoBehaviour
         get => _type;
     }
     public GameGrid gameGrid;
+    public MatchHUD matchHUD;
 
     public int score1Star;
     public int score2Star;
@@ -24,15 +26,22 @@ public class MatchLevel : MonoBehaviour
 
     protected int currentScore;
 
+    private void Start()
+    {
+        matchHUD.SetScore(currentScore);
+    }
+
     protected virtual void GameWin()
     {
         gameGrid.GameOver();
+        matchHUD.OnGameWin(currentScore);
         Debug.Log("===关卡胜利===");
     }
 
     protected virtual void GameLose()
     {
         gameGrid.GameOver();
+        matchHUD.OnGameLose();
         Debug.Log("===关卡失败===");
     }
 
@@ -44,5 +53,6 @@ public class MatchLevel : MonoBehaviour
     public virtual void OnPieceCleared(GamePiece piece)
     {
         currentScore += piece.score;
+        matchHUD.SetScore(currentScore);
     }
 }
