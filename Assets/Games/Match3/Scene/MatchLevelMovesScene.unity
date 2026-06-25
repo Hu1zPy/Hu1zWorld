@@ -314,7 +314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7254142ba57c514f897fc33fb6441ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GameGrid: {fileID: 1568419934}
+  gameGrid: {fileID: 1568419934}
   score1Star: 15000
   score2Star: 18000
   score3Star: 21000

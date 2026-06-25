@@ -13,6 +13,7 @@ public class LevelObstacle : MatchLevel
 
     private void Start()
     {
+        Debug.Log("===进入游戏 ：障碍物模式===");
         _type = LevelType.Obstacle;
         for (int i = 0; i < obstacles.Length; i++)
         {
