@@ -36,6 +36,9 @@ public class AudioManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        Screen.fullScreen = false;
+        Screen.SetResolution(1280,720,FullScreenMode.Windowed);
     }
 
     private void Start()
@@ -44,7 +47,14 @@ public class AudioManager : MonoBehaviour
         _bgmAudioSource = AudioSources[1];
         PlayBGM("mainbgm");
     }
-
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F11))
+        {
+            Screen.fullScreen = !Screen.fullScreen;
+        }
+    }
+    
     [Serializable]
     public struct MusicData
     {
