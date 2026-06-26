@@ -431,8 +431,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Level: {fileID: 1610750717}
-  xDim: 6
-  yDim: 7
+  xDim: 8
+  yDim: 8
   pieceBg: {fileID: 705582089949805844, guid: 766a250c124d28944b43a6f9232c8f37, type: 3}
   piecePrefabs:
   - type: 0

@@ -276,6 +276,8 @@ public class GameGrid : MonoBehaviour
                 //移动
                 piece1.MovablePieceRef.Move(piece2.X, piece2.Y, moveTime);
                 piece2.MovablePieceRef.Move(piece1X, piece1Y, moveTime);
+                
+                AudioManager.Instance.PlayClip("swap");
 
                 if (piece1.PieceType == PieceType.Rainbow && piece1.IsClearable() && piece2.IsColored())
                 {
@@ -659,6 +661,7 @@ public class GameGrid : MonoBehaviour
     {
         if (_pieces[x, y].IsClearable() && !_pieces[x, y].ClearablePieceRef.IsBeingCleared)
         {
+            AudioManager.Instance.PlayClip("clear");
             _pieces[x, y].ClearablePieceRef.Clear();
             GenerateNewPiece(x, y, PieceType.Empty);
             ClearObstacle(x, y);
@@ -725,6 +728,7 @@ public class GameGrid : MonoBehaviour
                 }
             }
         }
+        AudioManager.Instance.PlayClip("tnt");
     }
 
     public void GameOver()

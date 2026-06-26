@@ -19,7 +19,7 @@ public class MatchHUD : MonoBehaviour
 
     private int starIndex = 0;
 
-    private void Start()
+    private void Awake()
     {
         stars[0].gameObject.SetActive(true);
         for (int i = 0; i < stars.Length; i++)
@@ -33,6 +33,11 @@ public class MatchHUD : MonoBehaviour
                 stars[i].gameObject.SetActive(false);
             }
         }
+    }
+
+    private void Start()
+    {
+        AudioManager.Instance.PlayBGM("gamebgm");
     }
 
     public void SetScore(int number)

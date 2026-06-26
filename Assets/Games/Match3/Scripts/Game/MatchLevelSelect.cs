@@ -14,7 +14,7 @@ public class MatchLevelSelect : MonoBehaviour
     }
 
     public ButtonPlayerPrefs[] buttons;
-    private void Start()
+    private void Awake()
     {
         for (int i = 0; i < buttons.Length; i++)
         {
@@ -33,9 +33,9 @@ public class MatchLevelSelect : MonoBehaviour
             }
         }
     }
-
     public void OnButtonClick(string levelName)
     {
+        AudioManager.Instance.PlayClip("load");
         SceneManager.LoadSceneAsync(levelName);
     }
 }

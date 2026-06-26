@@ -71,11 +71,13 @@ public class MatchGameOver : MonoBehaviour
 
     public void OnRetryBtnClick()
     {
+        AudioManager.Instance.PlayClip("load");
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().name);
     }
 
     public void OnExitBtnClick()
     {
+        AudioManager.Instance.PlayClip("load");
         SceneManager.LoadSceneAsync("MatchMainScene");
     }
 }

@@ -36,6 +36,7 @@ public class MatchLevel : MonoBehaviour
     protected virtual void GameWin()
     {
         gameGrid.GameOver();
+        AudioManager.Instance.PlayClip("gameover");
         didWin = true;
         StartCoroutine(WaitForGridFill());
     }
