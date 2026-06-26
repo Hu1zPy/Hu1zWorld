@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MatchHUD : MonoBehaviour
 {
@@ -99,6 +100,10 @@ public class MatchHUD : MonoBehaviour
     public void OnGameWin(int scores)
     {
         gameOver.ShowWin(scores,starIndex);
+        if (starIndex > PlayerPrefs.GetInt(SceneManager.GetActiveScene().name, 0))
+        {
+            PlayerPrefs.SetInt(SceneManager.GetActiveScene().name, starIndex);
+        }
     }
 
     public void OnGameLose(int scores)

@@ -76,6 +76,6 @@ public class MatchGameOver : MonoBehaviour
 
     public void OnExitBtnClick()
     {
-        EditorApplication.isPlaying = false;
+        SceneManager.LoadSceneAsync("MatchMainScene");
     }
 }

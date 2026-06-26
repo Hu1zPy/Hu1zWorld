@@ -4,5 +4,17 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Games/Match3/Scene/MatchMainScene.unity
+    guid: 62587dda49aa2e94fa79d975c844c542
+  - enabled: 1
+    path: Assets/Games/Match3/Scene/MatchLevelMoves.unity
+    guid: b72255cb31a775944966d91f6ea0e44a
+  - enabled: 1
+    path: Assets/Games/Match3/Scene/MatchLevelObstacle.unity
+    guid: d3c6eaa747bf0e04eb17ff8c07552ae7
+  - enabled: 1
+    path: Assets/Games/Match3/Scene/MatchLevelTimer.unity
+    guid: 479bd518d9f3af54a9816e73e7fe43d8
   m_configObjects: {}
