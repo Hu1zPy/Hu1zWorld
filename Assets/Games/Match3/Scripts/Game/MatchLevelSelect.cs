@@ -38,4 +38,10 @@ public class MatchLevelSelect : MonoBehaviour
         AudioManager.Instance.PlayClip("load");
         SceneManager.LoadSceneAsync(levelName);
     }
+
+    public void BackToMain()
+    {
+        AudioManager.Instance.PlayClip("load");
+        SceneManager.LoadSceneAsync("Main");
+    }
 }

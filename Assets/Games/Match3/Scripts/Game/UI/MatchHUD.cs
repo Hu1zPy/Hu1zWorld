@@ -115,4 +115,11 @@ public class MatchHUD : MonoBehaviour
     {
         gameOver.ShowLose(scores);
     }
+
+    public void BackToSelect()
+    {
+        AudioManager.Instance.PlayClip("load");
+        AudioManager.Instance.PlayBGM("mainbgm");
+        SceneManager.LoadSceneAsync("MatchLevelSelect");
+    }
 }

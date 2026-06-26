@@ -753,5 +753,27 @@ public class GameGrid : MonoBehaviour
 
         return piecesOfType;
     }
+
+    public bool CheckDeadLock()
+    {
+        bool isDeadLock = false;
+
+        for (int x = 0; x < xDim; x++)
+        {
+            for (int y = 0; y < yDim; y++)
+            {
+                if (_pieces[x, y].IsClearable())
+                {
+                    List<GamePiece> match = GetMatch(_pieces[x, y], x, y);
+                    if (match != null)
+                    {
+                        isDeadLock = false;
+                    }
+                }
+            }
+        }
+
+        return isDeadLock;
+    }
 }
 
