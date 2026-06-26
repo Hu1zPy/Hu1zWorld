@@ -78,6 +78,7 @@ public class MatchGameOver : MonoBehaviour
     public void OnExitBtnClick()
     {
         AudioManager.Instance.PlayClip("load");
-        SceneManager.LoadSceneAsync("MatchMainScene");
+        AudioManager.Instance.PlayBGM("mainbgm");
+        SceneManager.LoadSceneAsync("MatchLevelSelect");
     }
 }

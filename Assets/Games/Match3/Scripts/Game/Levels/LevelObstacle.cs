@@ -13,7 +13,7 @@ public class LevelObstacle : MatchLevel
 
     private void Start()
     {
-        Debug.Log("===进入游戏 ：障碍物模式===");
+        //Debug.Log("===进入游戏 ：障碍物模式===");
         _type = LevelType.Obstacle;
         for (int i = 0; i < obstacles.Length; i++)
         {
@@ -33,9 +33,9 @@ public class LevelObstacle : MatchLevel
         _moveUsed++;
         int remainingMoves = numberMoves - _moveUsed;
         
-        Debug.Log("===当前分数为 ："+currentScore+"===");
-        Debug.Log("===剩余步数为 ："+ remainingMoves +"===");
-        Debug.Log("===剩余障碍数为 ："+ _obstaclesLeft +"===");
+        //Debug.Log("===当前分数为 ："+currentScore+"===");
+        //Debug.Log("===剩余步数为 ："+ remainingMoves +"===");
+        //Debug.Log("===剩余障碍数为 ："+ _obstaclesLeft +"===");
         
         matchHUD.SetRemaining(remainingMoves);
         matchHUD.SetTarget(_obstaclesLeft);
@@ -57,9 +57,9 @@ public class LevelObstacle : MatchLevel
                 _obstaclesLeft--;
                 int remainingMoves = numberMoves - _moveUsed;
                 
-                Debug.Log("===当前分数为 ："+currentScore+"===");
-                Debug.Log("===剩余步数为 ："+ remainingMoves +"===");
-                Debug.Log("===剩余障碍数为 ："+ _obstaclesLeft +"===");
+                //Debug.Log("===当前分数为 ："+currentScore+"===");
+                //Debug.Log("===剩余步数为 ："+ remainingMoves +"===");
+                //Debug.Log("===剩余障碍数为 ："+ _obstaclesLeft +"===");
                 
                 matchHUD.SetRemaining(remainingMoves);
                 matchHUD.SetTarget(_obstaclesLeft);
