@@ -62,7 +62,6 @@ public class Arrow : MonoBehaviour
         //todo 逃离动画
         isEscape = true;
         StartCoroutine(EscapeAnimation(_arrowManager.moveTime));
-        //gameObject.SetActive(false);
         LevelManager.Instance.OnArrowEscape();
     }
 

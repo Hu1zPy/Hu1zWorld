@@ -15,7 +15,7 @@ public class LevelManager : MonoBehaviour
     public int levelIndex = 1;
 
     [Tooltip("胜利后延迟加载下一关的秒数（等待逃逸动画播完）")]
-    public float nextLevelDelay = 2f;
+    public float nextLevelDelay = 1f;
 
     public int maxLife = 3;
     public int currentLife;
@@ -67,6 +67,7 @@ public class LevelManager : MonoBehaviour
         gridManager.CreateGrid(data.GridXSize, data.GridYSize);
         arrowManager.SetUpArrows(data.Arrows);
         currentLife = maxLife;
+        UIManager.Instance.UpdateHeader(levelIndex,currentLife);
     }
 
     /// <summary>
@@ -159,21 +160,28 @@ public class LevelManager : MonoBehaviour
         {
             GameLose();
         }
+        UIManager.Instance.UpdateHeader(levelIndex,currentLife);
     }
 
-    void GameWin()
+    public void GameWin()
     {
         if (_isSwitchingLevel) return;   // 防止重复触发
         _isSwitchingLevel = true;
 
         Debug.Log("游戏胜利");
-        StartCoroutine(LoadNextLevelCoroutine());
+        StartCoroutine(ShowWinCoroutine());
+    }
+
+    IEnumerator ShowWinCoroutine()
+    {
+        yield return new WaitForSeconds(nextLevelDelay);
+        UIManager.Instance.ShowWin();
     }
 
     /// <summary>
     /// 胜利后延迟加载下一关（等逃逸动画播完后切换）
     /// </summary>
-    IEnumerator LoadNextLevelCoroutine()
+    public IEnumerator LoadNextLevelCoroutine()
     {
         yield return new WaitForSeconds(nextLevelDelay);
 
@@ -182,8 +190,14 @@ public class LevelManager : MonoBehaviour
         StartLevel(levelIndex);
     }
 
-    void GameLose()
+    public void Replay()
+    {
+        StartLevel(levelIndex);
+    }
+
+    public void GameLose()
     {
         Debug.Log("游戏失败");
+        UIManager.Instance.ShowFailed();
     }
 }

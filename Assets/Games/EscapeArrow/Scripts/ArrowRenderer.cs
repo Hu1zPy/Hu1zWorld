@@ -56,12 +56,13 @@ public class ArrowRenderer : MonoBehaviour
         lineRenderer.SetPositions(points.ToArray());
 
         // ② 头部：贴到第一个点，朝向箭头方向
-        headTransform.position = points[0];
+        headTransform.position = points[0] + new Vector3(0,1,0);
         float angle = Mathf.Atan2(arrow.arrowDirection.x, arrow.arrowDirection.y) * Mathf.Rad2Deg;
         headTransform.rotation = Quaternion.Euler(90, angle, 0);   // 只转 Y 轴
 
         // ③ 尾部：贴到最后一个点
         tailTransform.position = points[^1];
+        tailTransform.gameObject.SetActive(false);
     }
 
     // ================= 附带：整体染色（可选） =================
