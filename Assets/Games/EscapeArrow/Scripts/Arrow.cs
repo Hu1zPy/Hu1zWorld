@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +31,7 @@ public class Arrow : MonoBehaviour
             c.SetOccupied(this);
         }
         arrowDirection = placeCells[0].girdPos - placeCells[1].girdPos;
-        transform.position = placeCells[0].transform.position;
+        transform.position = placeCells[0].transform.position + new Vector3(0,1,0);
         
         GetComponent<ArrowRenderer>().Setup();
     }
@@ -121,6 +121,7 @@ public class Arrow : MonoBehaviour
     // gridPath: CanEscape 的出参（被挡前走过的格子）
     public IEnumerator FailedEscapeAnimation(List<GridCell> gridPath, float moveTime)
     {
+        // 当前蛇身：占用的格子中心坐标（[0] = 头）
         List<Vector3> positions = new List<Vector3>();
         foreach (var c in placeCells) positions.Add(c.transform.position);
 
@@ -129,17 +130,25 @@ public class Arrow : MonoBehaviour
         float stepTime = (moveTime * 0.5f) / Mathf.Max(1, steps); // 半程给前进，半程给弹回
         ArrowRenderer render = GetComponent<ArrowRenderer>();
 
+        // 记录前进过程中每一步提交后的蛇身状态（S0 = 初始，S_{s+1} = 前进 s+1 步后的状态）
+        // 回弹时按快照逆序恢复，保证弯曲的蛇身也能精确回到原位
+        List<List<Vector3>> forwardStates = new List<List<Vector3>>();
+        forwardStates.Add(new List<Vector3>(positions));
+
         // ① 前进：头一格一格冲，尾跟着收缩
         for (int s = 0; s < steps; s++)
         {
             Vector3 next = positions[0] + dir;
             yield return MoveOneStepForward(positions, next, stepTime, render);
+            forwardStates.Add(new List<Vector3>(positions));
         }
 
-        // ② 弹回：头一格一格退，尾长回原样
+        // ② 弹回：头一格一格退，尾按前进快照逐格长回
         for (int s = 0; s < steps; s++)
         {
-            Vector3 nextTail = positions[^1] - dir;    // 尾部要长回的格子（原尾部方向）
+            // 目标状态 = 前进 (steps - 1 - s) 步后的状态，取其尾部位置作为尾巴长回的目标点
+            List<Vector3> targetState = forwardStates[steps - 1 - s];
+            Vector3 nextTail = targetState[targetState.Count - 1];
             yield return MoveOneStepBackward(positions, nextTail, stepTime, render);
         }
     }

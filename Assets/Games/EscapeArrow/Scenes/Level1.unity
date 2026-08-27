@@ -446,6 +446,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   arrowManager: {fileID: 1821280860}
   gridManager: {fileID: 578612727}
+  levelIndex: 2
   maxLife: 3
   currentLife: 0
 --- !u!1 &1821280859
@@ -481,6 +482,17 @@ MonoBehaviour:
   arrowsParent: {fileID: 1821280861}
   remainingCount: 0
   moveTime: 0.5
+  arrowColors:
+  - {r: 1, g: 0.37, b: 0.37, a: 1}
+  - {r: 1, g: 0.72, b: 0.35, a: 1}
+  - {r: 1, g: 0.92, b: 0.42, a: 1}
+  - {r: 0.55, g: 0.9, b: 0.4, a: 1}
+  - {r: 0.45, g: 0.82, b: 0.95, a: 1}
+  - {r: 0.5, g: 0.62, b: 1, a: 1}
+  - {r: 0.78, g: 0.55, b: 1, a: 1}
+  - {r: 1, g: 0.55, b: 0.85, a: 1}
+  - {r: 0.92, g: 0.92, b: 0.92, a: 1}
+  - {r: 0.82, g: 0.62, b: 0.42, a: 1}
 --- !u!4 &1821280861
 Transform:
   m_ObjectHideFlags: 0
