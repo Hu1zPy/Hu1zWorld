@@ -46,7 +46,7 @@ public class LevelManager : MonoBehaviour
 
     private void StartLevel()
     {
-        gridManager.CreateGrid();
+        gridManager.CreateGrid(7,6);
         arrowManager.SetUpArrows(testLevel);
         currentLife = maxLife;
         gridManager.transform.position -= new Vector3(0, 1, 0);

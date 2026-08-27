@@ -10,9 +10,11 @@ public class GridManager : MonoBehaviour
 
     private GridCell[,] _gridCells;
     public Dictionary<int, GridCell> IDMap = new Dictionary<int, GridCell>();
-
-    public void CreateGrid()
+    
+    public void CreateGrid(int X, int Y)
     {
+        sizeX = X;
+        sizeY = Y;
         int id = 0;
         _gridCells = new GridCell[sizeX, sizeY];
         for (int y = 0; y < sizeY; y++)
