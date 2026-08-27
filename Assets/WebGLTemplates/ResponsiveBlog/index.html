@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>{{{ PRODUCT_NAME }}}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { 
+            width: 100%; height: 100%; 
+            overflow: hidden; 
+            background: #1a1a2e; /* 你的二次元深色背景 */
+        }
+        #unity-container {
+            width: 100%; height: 100%; 
+            display: flex; justify-content: center; align-items: center;
+        }
+        #unity-canvas {
+            width: 100%;
+            height: 100%;
+            background: #231942;
+            /* 保持比例，多余部分上下留黑边 */
+            object-fit: contain; 
+        }
+        /* 加载进度条美化 */
+        #unity-loading-bar {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%; max-width: 400px;
+        }
+        #unity-progress-bar-empty { 
+            background: rgba(255,255,255,0.1); height: 4px; border-radius: 2px;
+        }
+        #unity-progress-bar-full { 
+            background: linear-gradient(90deg, #ff6ec4, #7873f5); /* 二次元渐变 */
+            height: 100%; width: 0%; border-radius: 2px; transition: width 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <div id="unity-container">
+        <canvas id="unity-canvas" tabindex="-1"></canvas>
+        <div id="unity-loading-bar">
+            <div id="unity-progress-bar-empty">
+                <div id="unity-progress-bar-full"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var container = document.querySelector("#unity-container");
+        var canvas = document.querySelector("#unity-canvas");
+        var loadingBar = document.querySelector("#unity-loading-bar");
+        var progressBarFull = document.querySelector("#unity-progress-bar-full");
+
+        // 【关键】覆盖掉默认的固定宽高，让 Unity 跟随 CSS 尺寸
+        var config = {
+            dataUrl: "Build/{{{ DATA_FILENAME }}}",
+            frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
+            codeUrl: "Build/{{{ CODE_FILENAME }}}",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "{{{ COMPANY_NAME }}}",
+            productName: "{{{ PRODUCT_NAME }}}",
+            // 注意这里：不写死 width/height，让 Unity 自己去读 canvas 的 CSS 尺寸
+            devicePixelRatio: 1, 
+        };
+
+        // 监听 Unity 加载进度
+        config.onProgress = function (unityInstance, progress) {
+            progressBarFull.style.width = 100 * progress + '%';
+            if (progress === 1) loadingBar.style.display = 'none';
+        };
+
+        createUnityInstance(canvas, config)
+            .then(function (unityInstance) {
+                // 这里可以暴露给父页面（你的博客）调用的全局方法
+                window.unityGameInstance = unityInstance;
+            })
+            .catch((message) => { alert(message); });
+    </script>
+</body>
+</html>

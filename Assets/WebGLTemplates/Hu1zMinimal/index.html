@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en-us" style="width:100%; height:100%; margin:0; padding:0;">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | {{{ PRODUCT_NAME }}}</title>
+  </head>
+  <body style="padding:0; border:0; margin:0; width:100%; height:100%; overflow:hidden;">
+    <canvas id="unity-canvas" tabindex="-1" style="width:100%; height:100%; display:block; background:transparent;"></canvas>
+    <script>
+      var buildUrl = "Build";
+      var dataFilename = "{{{ DATA_FILENAME }}}";
+      var loaderUrl = buildUrl + "/" + dataFilename.replace(".data.br", ".loader.js").replace(".data.gz", ".loader.js").replace(".data", ".loader.js");
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      document.body.appendChild(script);
+
+      script.onload = function() {
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          var meta = document.createElement("meta");
+          meta.name = "viewport";
+          meta.content = "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+          document.getElementsByTagName("head")[0].appendChild(meta);
+          var mc = document.querySelector("#unity-canvas");
+          mc.style.width = "100%";
+          mc.style.height = "100%";
+          mc.style.position = "fixed";
+          document.body.style.textAlign = "left";
+        }
+
+        var canvas = document.querySelector("#unity-canvas");
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+
+        createUnityInstance(canvas, {
+          dataUrl: "Build/{{{ DATA_FILENAME }}}",
+          frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
+          codeUrl: "Build/{{{ CODE_FILENAME }}}",
+          streamingAssetsUrl: "StreamingAssets",
+          companyName: "{{{ COMPANY_NAME }}}",
+          productName: "{{{ PRODUCT_NAME }}}",
+          productVersion: "{{{ PRODUCT_VERSION }}}",
+          matchWebGLToCanvasSize: true,
+        });
+      };
+    </script>
+  </body>
+</html>
