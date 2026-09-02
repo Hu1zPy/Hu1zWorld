@@ -33,7 +33,7 @@ public class BoardFitter : MonoBehaviour
     private int _lastSizeY = -1;
 
     // 场景加载后自动挂到 Main Camera，无需手动拖拽
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    //[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void AutoAttach()
     {
         if (Object.FindObjectOfType<BoardFitter>() != null) return;
